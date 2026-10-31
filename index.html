@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070b08">
+<title>MW ANÁLISE BOT</title>
+<style>
+:root{
+--bg:#070b08;--panel:#101812;--green:#38ff86;
+--gold:#d7b45b;--white:#f4f7f4;--muted:#91a095;
+--line:#26372c;--red:#ff6262;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;transition:.2s}
+button:hover{filter:brightness(1.12)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#0b110d;border-right:1px solid var(--line);
+padding:25px 17px;position:fixed;inset:0 auto 0 0;z-index:5}
+.brand{font-size:23px;font-weight:950}
+.brand span{color:var(--green)}
+.brand small{display:block;font-size:9px;color:var(--gold);letter-spacing:4px;margin-top:5px}
+.side-label{font-size:10px;color:#65766a;letter-spacing:2px;margin:35px 10px 12px}
+.nav button{display:flex;gap:12px;width:100%;padding:13px;background:transparent;
+color:#aab8ae;border:0;border-radius:10px;text-align:left;margin:5px 0;font-size:13px}
+.nav button.active,.nav button:hover{background:#17271b;color:var(--green)}
+.sidebar-bottom{position:absolute;bottom:20px;left:17px;right:17px;
+border:1px solid var(--line);background:var(--panel);border-radius:12px;
+padding:13px;font-size:11px;color:var(--muted);line-height:1.7}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+background:var(--green);margin-right:7px;box-shadow:0 0 9px var(--green)}
+main{margin-left:235px;width:calc(100% - 235px);padding:28px;max-width:1500px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:12px}
+.topbar h1{font-size:24px;margin:0}
+.topbar p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.hero{border:1px solid #31583c;border-radius:18px;padding:27px;
+background:radial-gradient(ellipse at 85% 10%,#1b492a,transparent 45%),linear-gradient(115deg,#122219,#0c130e);
+position:relative;overflow:hidden;margin-bottom:20px}
+.hero:after{content:"MW";position:absolute;right:30px;top:5px;font-size:110px;
+font-weight:1000;color:#ffffff08;pointer-events:none}
+.hero h2{font-size:26px;margin:0 0 9px}
+.hero h2 span{color:var(--green)}
+.hero p{font-size:13px;color:#a8b8ac;max-width:600px;line-height:1.7}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.btn{border:0;border-radius:9px;padding:12px 15px;font-size:12px;font-weight:800}
+.green{background:var(--green);color:#07120a}
+.gold{background:var(--gold);color:#191408}
+.dark{background:#1b2b20;border:1px solid #3a5941;color:white}
+.red{background:#482323;color:white}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat small{color:var(--muted);font-size:10px}
+.stat strong{display:block;font-size:26px;margin-top:10px}
+.stat .highlight{color:var(--green)}
+.columns{display:grid;grid-template-columns:1.3fr .8fr;gap:16px}
+.panel{margin-bottom:16px}
+.panel h3{font-size:15px;margin:0}
+.sub{font-size:11px;color:var(--muted);margin-top:6px}
+label{display:block;font-size:11px;color:#a9b7ac;margin:14px 0 7px}
+input,select,textarea{width:100%;padding:12px;background:#080e0a;
+border:1px solid #2a3b2e;color:white;border-radius:9px;outline:none;font-size:13px}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+.formrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{width:100%;margin-top:15px}
+.upload{border:1px dashed #42624a;background:#0b130d;border-radius:12px;padding:17px}
+.upload input{border:0;padding:10px 0}
+.upload small{color:var(--muted);font-size:11px}
+.preview{display:none;width:100%;max-height:260px;object-fit:contain;
+border-radius:10px;margin-top:12px;background:#080b08}
+.item{padding:16px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.itemtop{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tag{font-size:10px;padding:5px 9px;border-radius:20px;background:#1b3021;color:var(--green)}
+.tag.done{background:#263029;color:#a8b5aa}
+.time{font-size:11px;color:var(--gold)}
+.item h4{font-size:14px;margin:10px 0 7px}
+.item p{font-size:12px;color:var(--muted);white-space:pre-wrap;line-height:1.6}
+.itemimg{width:100%;max-height:220px;object-fit:contain;background:#080b08;
+border-radius:10px;margin-top:10px}
+.itemactions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.itemactions button{font-size:10px;padding:9px 11px}
+.group{background:linear-gradient(135deg,#15271a,#0e1510);
+border:1px solid #35553a;border-radius:13px;padding:18px}
+.group h4{margin:0 0 8px}
+.group p,.notice{font-size:12px;line-height:1.7;color:var(--muted)}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:#1c3222;
+border:1px solid #477b50;color:white;padding:13px 18px;border-radius:10px;
+font-size:12px;display:none;z-index:20;max-width:90%}
+footer{text-align:center;color:#657368;font-size:10px;padding:20px}
+@media(max-width:950px){
+.sidebar{width:195px}main{margin-left:195px;width:calc(100% - 195px);padding:18px}
+.stats{grid-template-columns:repeat(2,1fr)}.columns{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+.sidebar{display:none}main{margin:0;width:100%;padding:14px}
+.topbar h1{font-size:20px}.stats{gap:8px}.stat{padding:13px}
+.stat strong{font-size:23px}.hero{padding:20px}.hero h2{font-size:22px}
+.hero:after{font-size:70px}.panel{padding:15px}.formrow{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand">MW <span>ANÁLISE</span><small>BOT SYSTEM</small></div>
+ <div class="side-label">MENU PRINCIPAL</div>
+ <nav class="nav">
+  <button class="active" onclick="goTo('inicio',this)">⌂ Visão geral</button>
+  <button onclick="goTo('criar',this)">＋ Criar mensagem</button>
+  <button onclick="goTo('agenda',this)">▦ Agenda</button>
+  <button onclick="goTo('grupo',this)">◉ Grupo WhatsApp</button>
+  <button onclick="ativarNotificacoes()">♧ Notificações</button>
+ </nav>
+ <div class="sidebar-bottom"><span class="dot"></span> SISTEMA ATIVO<br>MW ANÁLISE BOT<br>VERSÃO 3.0</div>
+</aside>
+
+<main id="inicio">
+ <div class="topbar">
+  <div><h1>Painel de controle</h1><p>Gerencie mensagens, fotos e horários de publicação.</p></div>
+ </div>
+
+ <section class="hero">
+  <h2>MW <span>ANÁLISE</span> BOT</h2>
+  <p>Prepare comunicados com texto e imagem, organize seus horários e acompanhe suas publicações em um só lugar.</p>
+  <div class="actions">
+   <button class="btn green" onclick="goTo('criar')">＋ Nova mensagem</button>
+   <button class="btn dark" onclick="goTo('agenda')">Ver agenda →</button>
+  </div>
+ </section>
+
+ <section class="stats">
+  <div class="stat"><small>TOTAL DE MENSAGENS</small><strong id="total">0</strong></div>
+  <div class="stat"><small>PENDENTES</small><strong class="highlight" id="pending">0</strong></div>
+  <div class="stat"><small>PUBLICADAS</small><strong id="sent">0</strong></div>
+  <div class="stat"><small>PRÓXIMA PUBLICAÇÃO</small><strong id="next" style="font-size:15px">—</strong></div>
+ </section>
+
+ <div class="columns">
+ <div>
+  <section class="panel" id="criar">
+   <h3>＋ Criar nova mensagem</h3>
+   <div class="sub">Adicione texto, imagem e horário.</div>
+   <form id="form">
+    <label>TÍTULO</label>
+    <input id="title" placeholder="Ex.: Aviso importante" required>
+    <div class="formrow">
+     <div><label>CATEGORIA</label>
+      <select id="category">
+       <option>Comunicado</option><option>Slots</option>
+       <option>Cassino ao vivo</option><option>Programação</option><option>Geral</option>
+      </select>
+     </div>
+     <div><label>DATA E HORÁRIO</label><input id="datetime" type="datetime-local" required></div>
+    </div>
+    <label>MENSAGEM</label>
+    <textarea id="message" placeholder="Escreva a mensagem para o grupo..." required></textarea>
+
+    <label>FOTO OU IMAGEM</label>
+    <div class="upload">
+     <input id="imageFile" type="file" accept="image/*">
+     <small>Escolha uma foto da galeria ou do computador. Limite: 1,5 MB por imagem.</small>
+     <img id="preview" class="preview" alt="Prévia da imagem">
+     <button type="button" class="btn red" id="removeImage" style="display:none;margin-top:10px" onclick="clearImage()">Remover foto</button>
+    </div>
+    <button class="btn green full" type="submit">SALVAR MENSAGEM NA AGENDA →</button>
+   </form>
+  </section>
+
+  <section class="panel" id="agenda">
+   <div class="itemtop"><div><h3>▦ Agenda de publicações</h3><div class="sub">Mensagens e imagens cadastradas.</div></div><span class="tag" id="count">0 itens</span></div>
+   <div id="list"><div class="empty">Sua agenda está vazia.</div></div>
+  </section>
+ </div>
+
+ <div>
+  <section class="panel" id="grupo">
+   <h3>◉ Grupo WhatsApp</h3>
+   <div class="sub">Acesso ao grupo MW ANÁLISE.</div>
+   <div class="group" style="margin-top:15px">
+    <h4>MW ANÁLISE</h4>
+    <p>Prepare o texto e baixe a foto para anexar no grupo.</p>
+    <button class="btn gold" style="width:100%" onclick="openGroup()">ABRIR GRUPO →</button>
+   </div>
+   <p class="notice">O painel não envia automaticamente. Você confere o texto, anexa a foto e confirma o envio no WhatsApp.</p>
+  </section>
+
+  <section class="panel">
+   <h3>♧ Notificações</h3>
+   <p class="sub">Receba um aviso quando chegar o horário de uma publicação, com o painel aberto.</p>
+   <button class="btn dark full" onclick="ativarNotificacoes()">ATIVAR NOTIFICAÇÕES</button>
+   <p class="notice" id="notificationStatus">Permissão ainda não verificada.</p>
+  </section>
+
+  <section class="panel">
+   <h3>Informações do sistema</h3>
+   <p class="notice"><span class="dot"></span> Painel em funcionamento.<br>Dados salvos neste navegador.<br>Fotos armazenadas junto das mensagens.</p>
+  </section>
+ </div>
+ </div>
+ <footer>MW ANÁLISE BOT • SISTEMA DE ORGANIZAÇÃO • 2026</footer>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const GROUP_LINK="https://chat.whatsapp.com/K2cVgo2mIpW7vX4qSvTjqn?s=sh&p=a&iam=2";
+const KEY="mw_analise_bot_v3";
+const ALERT_KEY="mw_analise_bot_v3_alerts";
+
+let data=[];
+let alerted=[];
+let selectedImage="";
+
+try{data=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
+try{alerted=JSON.parse(localStorage.getItem(ALERT_KEY)||"[]")}catch(e){}
+
+function save(){
+ try{
+  localStorage.setItem(KEY,JSON.stringify(data));
+  localStorage.setItem(ALERT_KEY,JSON.stringify(alerted));
+  render();
+ }catch(e){
+  toast("Armazenamento cheio. Remova imagens antigas e tente novamente.");
+ }
+}
+function toast(msg){
+ const el=document.getElementById("toast");
+ el.textContent=msg;el.style.display="block";
+ setTimeout(()=>el.style.display="none",3200);
+}
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function dateText(v){
+ return new Date(v).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+}
+function clearImage(){
+ selectedImage="";
+ document.getElementById("imageFile").value="";
+ document.getElementById("preview").src="";
+ document.getElementById("preview").style.display="none";
+ document.getElementById("removeImage").style.display="none";
+}
+document.getElementById("imageFile").addEventListener("change",function(e){
+ const file=e.target.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/")){
+  toast("Escolha um arquivo de imagem válido.");this.value="";return;
+ }
+ if(file.size>1.5*1024*1024){
+  toast("A imagem deve ter até 1,5 MB.");this.value="";return;
+ }
+ const reader=new FileReader();
+ reader.onload=function(){
+  selectedImage=reader.result;
+  const preview=document.getElementById("preview");
+  preview.src=selectedImage;preview.style.display="block";
+  document.getElementById("removeImage").style.display="inline-block";
+ };
+ reader.readAsDataURL(file);
+});
+
+document.getElementById("form").addEventListener("submit",e=>{
+ e.preventDefault();
+ const datetime=document.getElementById("datetime").value;
+ if(new Date(datetime)<=new Date()){
+  toast("Escolha uma data e horário futuros.");return;
+ }
+ const item={
+  id:Date.now().toString(),
+  title:document.getElementById("title").value.trim(),
+  category:document.getElementById("category").value,
+  datetime,
+  message:document.getElementById("message").value.trim(),
+  image:selectedImage,
+  sent:false
+ };
+ data.push(item);
+ save();
+ e.target.reset();
+ clearImage();
+ toast("Mensagem e imagem salvas na agenda!");
+});
+
+function render(){
+ const pending=data.filter(x=>!x.sent);
+ document.getElementById("total").textContent=data.length;
+ document.getElementById("pending").textContent=pending.length;
+ document.getElementById("sent").textContent=data.filter(x=>x.sent).length;
+ document.getElementById("count").textContent=data.length+" itens";
+
+ const next=pending.filter(x=>new Date(x.datetime)>new Date())
+ .sort((a,b)=>new Date(a.datetime)-new Date(b.datetime))[0];
+ document.getElementById("next").textContent=next?dateText(next.datetime):"—";
+
+ const list=document.getElementById("list");
+ if(!data.length){
+  list.innerHTML='<div class="empty">Sua agenda está vazia. Crie sua primeira mensagem.</div>';return;
+ }
+ const sorted=[...data].sort((a,b)=>new Date(a.datetime)-new Date(b.datetime));
+ list.innerHTML=sorted.map(x=>`
+  <article class="item">
+   <div class="itemtop">
+    <span class="tag ${x.sent?'done':''}">${x.sent?'PUBLICADA':esc(x.category.toUpperCase())}</span>
+    <span class="time">${dateText(x.datetime)}</span>
+   </div>
+   <h4>${esc(x.title)}</h4>
+   <p>${esc(x.message)}</p>
+   ${x.image?`<img class="itemimg" src="${x.image}" alt="Imagem da mensagem">`:""}
+   <div class="itemactions">
+    <button class="btn dark" onclick="copyText('${x.id}')">COPIAR TEXTO</button>
+    ${x.image?`<button class="btn dark" onclick="downloadImage('${x.id}')">BAIXAR FOTO</button>`:""}
+    <button class="btn gold" onclick="prepare('${x.id}')">PREPARAR ENVIO</button>
+    <button class="btn dark" onclick="markSent('${x.id}')">MARCAR PUBLICADA</button>
+    <button class="btn red" onclick="removeItem('${x.id}')">EXCLUIR</button>
+   </div>
+  </article>
+ `).join("");
+}
+
+async function copyText(id){
+ const x=data.find(a=>a.id===id);if(!x)return;
+ try{
+  await navigator.clipboard.writeText(x.message);
+  toast("Texto copiado! Cole no WhatsApp.");
+ }catch(e){toast("Não foi possível copiar o texto.");}
+}
+function downloadImage(id){
+ const x=data.find(a=>a.id===id);if(!x||!x.image)return;
+ const a=document.createElement("a");
+ a.href=x.image;a.download="mw-analise-foto.jpg";
+ document.body.appendChild(a);a.click();a.remove();
+ toast("Foto preparada para baixar.");
+}
+function prepare(id){
+ const x=data.find(a=>a.id===id);if(!x)return;
+ copyText(id);
+ if(x.image)downloadImage(id);
+ window.open(GROUP_LINK,"_blank","noopener");
+ toast(x.image?"Texto copiado e foto baixada. Anexe a foto no grupo.":"Texto copiado. Cole no grupo.");
+}
+function markSent(id){
+ const x=data.find(a=>a.id===id);if(!x)return;
+ if(confirm("Você já enviou esta mensagem no grupo?")){
+  x.sent=true;save();toast("Mensagem marcada como publicada.");
+ }
+}
+function removeItem(id){
+ if(!confirm("Deseja excluir esta mensagem e sua imagem?"))return;
+ data=data.filter(x=>x.id!==id);
+ alerted=alerted.filter(x=>x!==id);
+ save();toast("Mensagem excluída.");
+}
+function openGroup(){window.open(GROUP_LINK,"_blank","noopener")}
+function goTo(id,button){
+ document.getElementById(id).scrollIntoView({behavior:"smooth",block:"start"});
+ if(button){
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+  button.classList.add("active");
+ }
+}
+async function ativarNotificacoes(){
+ if(!("Notification" in window)){toast("Navegador sem suporte a notificações.");return}
+ const p=await Notification.requestPermission();
+ document.getElementById("notificationStatus").textContent=
+ p==="granted"?"Notificações ativadas neste navegador.":"Permissão não concedida.";
+ toast(p==="granted"?"Notificações ativadas!":"Permissão não concedida.");
+}
+function checkDue(){
+ const now=Date.now();
+ data.forEach(x=>{
+  if(!x.sent&&new Date(x.datetime).getTime()<=now&&!alerted.includes(x.id)){
+   alerted.push(x.id);
+   localStorage.setItem(ALERT_KEY,JSON.stringify(alerted));
+   if("Notification" in window&&Notification.permission==="granted"){
+    new Notification("MW ANÁLISE BOT",{body:"Horário da mensagem: "+x.title});
+   }else{toast("Chegou o horário: "+x.title)}
+  }
+ });
+}
+render();
+setInterval(checkDue,15000);
+checkDue();
+</script>
+</body>
+</html>
